@@ -1,0 +1,67 @@
+Supporting Facts 
+
+
+SELECT
+  (
+    CASE
+      WHEN C3 = 1 THEN ''
+      WHEN C3 = 0  AND qid = '201' AND C5 <> '' THEN 'Cervical Cancer Screening Not Done'
+      WHEN C3 = 0  AND qid = '203' AND C5 <> '' THEN 'HIV Cancer Screening Not Done'
+      WHEN C3 = 0  AND qid = '205' AND C5 <> '' THEN 'Vitals Not Taken'
+      WHEN C3 = 0  AND qid = '205' AND C6 <> '' AND C9 = 1 THEN 'BELOW NORMAL BMI FOLLOW UP Not Done'
+      WHEN C3 = 0  AND qid = '205' AND C6 <> '' AND C9 = 2 THEN 'ABOVE NORMAL BMI FOLLOW UP Not Done'
+      WHEN C3 = 0  AND qid = '208' AND C5 <> '' THEN 'Colorectal Cancer Screening Not Done'
+      WHEN C3 = 0  AND qid = '213' AND C5 <> '' THEN 'Vitals Not Taken'
+      WHEN C3 = 0  AND qid = '213' AND C6 <> '' THEN 'FOLLOW UP Not Done'
+      WHEN C3 = 0  AND qid = '213' AND C7 <> '' THEN 'Child BMI Additional Follow up not Done'
+      WHEN C3 = 0  AND qid = '218' AND C5 <> '' THEN 'IVD Medication'
+      WHEN C3 = 0  AND qid = '220' AND C5 <> '' THEN 'Depression Screening Not Done'
+      WHEN C3 = 0  AND qid = '220' AND C6 <> '' AND C9 = 1 THEN 'Depression Screening Follow Up Not Done'
+      WHEN C3 = 0 AND qid = '223' AND C5 <> '' THEN 'Not Achieved Remission or PHQ-9 Score >= 10 or PHQ2(OLD) YES TO EITHER OR PHQ2(NEW) >= 3 OR PHQA (Score >= 10 or yes to Question 12/13) '
+      WHEN C3 = 0 AND qid = '225' AND C5 <> '' THEN 'HbA1c < 9'
+      WHEN C3 = 0 AND qid = '228' AND C5 <> '' THEN 'Blood Pressure > 140/90 mm Hg'
+      WHEN C3 = 0 AND qid = '230' AND C5 <> '' THEN 'No Active Statin Medication'
+      WHEN C3 = 0 AND qid = '232' AND C5 <> '' THEN 'Tobacco Screening Not Done'
+      WHEN C3 = 0 AND qid = '232' AND C5 <> '' AND C9 = 1 THEN 'Tobacco Follow Up Not Done'
+      WHEN C3 = 0 AND qid = '234' AND C5 <> '' THEN 'Mammogram Screening Not Done'
+      END
+  ) AS 'Supporting_Facts',
+  c2 AS 'Patient_id'
+FROM
+  ebo_cde_detail
+WHERE
+  CAST(qid AS CHAR(255)) IN ( '201','203','205','208','213','218','220','223','225','228','230','232','235') AND c2 = 10114
+
+
+
+Measure 
+
+SELECT 
+DISTINCT (CASE 
+	WHEN CAST(qid AS CHAR(10)) = '201' THEN 'Cervical Cancer Screening'
+	WHEN CAST(qid AS CHAR(10)) = '203' THEN 'HIV Screening'
+	WHEN CAST(qid AS CHAR(10)) = '205' THEN 'Adult BMI'
+	WHEN CAST(qid AS CHAR(10)) = '208' THEN 'Colorectal Cancer Screening'
+	WHEN CAST(qid AS CHAR(10)) = '213' THEN 'Childhood BMI'
+	WHEN CAST(qid AS CHAR(10)) = '218' THEN 'IVD'
+	WHEN CAST(qid AS CHAR(10)) = '220' THEN 'Depression Screening'
+	WHEN CAST(qid AS CHAR(10)) = '223' THEN 'Depression Remission'
+	WHEN CAST(qid AS CHAR(10)) = '225' THEN 'Diabetes'
+	WHEN CAST(qid AS CHAR(10)) = '228' THEN 'Hypertension'
+	WHEN CAST(qid AS CHAR(10)) = '230' THEN 'Statin Therapy'
+	WHEN CAST(qid AS CHAR(10)) = '232' THEN 'Tobacco Screening'
+	WHEN CAST(qid AS CHAR(10)) = '234' THEN 'Breast Cancer Screening'
+END
+) AS 'Measure_Name',
+(CASE 
+	WHEN C3 = 0 THEN 'Non-Compliant'
+	WHEN C3 = 1 THEN 'Compliant'
+END) AS 'Outcome' ,c2 AS 'Patient_id'
+FROM ebo_cde_detail WHERE CAST(qid AS CHAR(255)) IN ('201', '203', '205','208', '213', '218', '220', '223', '225', '228', '230', '232', '234') AND c2 = 9653
+
+
+Program
+
+select distinct cdename as 'Program_Name' from eBO_CDE_DETAIL where cdename = 'UDS'
+
+
