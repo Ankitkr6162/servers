@@ -1,0 +1,330 @@
+import api.dao.UdsCdeDao;
+import api.model.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/cde")
+public class EboCdeController {
+    UdsCdeDao udsCdeDao = new UdsCdeDao();
+
+    @GetMapping("/details")
+    public MainBody mainBody(String patientId, MainBody mainBody) {
+
+//        System.out.println("CRTL: "+  udsCdeDao.generateMeasureSupportingFacts());
+
+//        List<SupportingFact> supportingFacts = udsCdeDao.generateMeasureSupportingFacts();
+//        List<Measure> measures = udsCdeDao.generateMeasures();
+//        Measure measure = new Measure();
+//        measure.setSupportingFacts(supportingFacts);
+////        MainBody mainBody = new MainBody();
+////        udsCdeDao.setUserInfo(mainBody);
+//        Program program = new Program();
+//        program.setMeasures(List.of(measure));
+//        mainBody.setPrograms(List.of(program));
+//
+//        return mainBody;
+
+
+        List<SupportingFact> supportingFacts = udsCdeDao.generateMeasureSupportingFacts();
+        List<Measure> measures = udsCdeDao.generateMeasures();
+        if (measures != null && !measures.isEmpty()) {
+            for (Measure measure : measures) {
+                measure.setSupportingFacts(supportingFacts);
+            }
+//            MainBody mainBody = new MainBody();
+            List<Program> programs = udsCdeDao.generatePrograms();
+            if (programs != null && !programs.isEmpty()) {
+                for (Program program : programs) {
+                    program.setMeasures(measures);
+
+                }
+                mainBody.setPrograms(programs);
+                udsCdeDao.setUserInfo(patientId, mainBody);
+                udsCdeDao.setMeasurePeriod(mainBody);
+
+            }
+            return mainBody;
+
+        } else {
+            return null;
+        }
+
+//        List<SupportingFact> supportingFacts = udsCdeDao.generateMeasureSupportingFacts();
+//        List<Measure> measures = udsCdeDao.generateMeasures();
+//        Measure measure = new Measure();
+//        measure.setSupportingFacts(supportingFacts);
+//
+//        List<Program> programs = udsCdeDao.generatePrograms();
+//        Program program = new Program();
+//        program.setMeasures(measures);
+//        mainBody.setPrograms(programs);
+//
+//        return mainBody;
+    }
+}
+
+
+
+package api.dao;
+
+import api.databaseconnector.DatabaseConnector;
+import api.model.MainBody;
+import api.model.Measure;
+import api.model.Program;
+import api.model.SupportingFact;
+
+
+import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import static java.sql.DriverManager.getConnection;
+
+public class UdsCdeDao {
+
+
+    public List<SupportingFact> generateMeasureSupportingFacts() {
+        List<SupportingFact> supportingFacts = new ArrayList<>();
+        final String query = "SELECT\n" +
+                "  (\n" +
+                "    CASE\n" +
+                "      WHEN C3 = 1 THEN ''\n" +
+                "      WHEN C3 = 0\n" +
+                "      AND qid = '201'\n" +
+                "      AND C5 <> '' THEN 'Cervical Cancer Screening Not Done'\n" +
+                "      WHEN C3 = 0\n" +
+                "      AND qid = '203'\n" +
+                "      AND C5 <> '' THEN 'HIV Cancer Screening Not Done'\n" +
+                "      WHEN C3 = 0\n" +
+                "      AND qid = '205'\n" +
+                "      AND C5 <> '' THEN 'Vitals Not Taken'\n" +
+                "      WHEN C3 = 0\n" +
+                "      AND qid = '205'\n" +
+                "      AND C6 <> ''\n" +
+                "      AND C9 = 1 THEN 'BELOW NORMAL BMI FOLLOW UP Not Done'\n" +
+                "      WHEN C3 = 0\n" +
+                "      AND qid = '205'\n" +
+                "      AND C6 <> ''\n" +
+                "      AND C9 = 2 THEN 'ABOVE NORMAL BMI FOLLOW UP Not Done'\n" +
+                "      WHEN C3 = 0\n" +
+                "      AND qid = '208'\n" +
+                "      AND C5 <> '' THEN 'Colorectal Cancer Screening Not Done'\n" +
+                "      WHEN C3 = 0\n" +
+                "      AND qid = '213'\n" +
+                "      AND C5 <> '' THEN 'Vitals Not Taken'\n" +
+                "      WHEN C3 = 0\n" +
+                "      AND qid = '213'\n" +
+                "      AND C6 <> '' THEN 'FOLLOW UP Not Done'\n" +
+                "      WHEN C3 = 0\n" +
+                "      AND qid = '213'\n" +
+                "      AND C7 <> '' THEN 'Child BMI Additional Follow up not Done'\n" +
+                "      WHEN C3 = 0\n" +
+                "      AND qid = '218'\n" +
+                "      AND C5 <> '' THEN 'IVD Medication'\n" +
+                "      WHEN C3 = 0\n" +
+                "      AND qid = '220'\n" +
+                "      AND C5 <> '' THEN 'Depression Screening Not Done'\n" +
+                "      WHEN C3 = 0\n" +
+                "      AND qid = '220'\n" +
+                "      AND C6 <> ''\n" +
+                "      AND C9 = 1 THEN 'Depression Screening Follow Up Not Done'\n" +
+                "      WHEN C3 = 0\n" +
+                "      AND qid = '223'\n" +
+                "      AND C5 <> '' THEN 'Not Achieved Remission or PHQ-9 Score >= 10 or PHQ2(OLD) YES TO EITHER OR PHQ2(NEW) >= 3 OR PHQA (Score >= 10 or yes to Question 12/13) '\n" +
+                "      WHEN C3 = 0\n" +
+                "      AND qid = '225'\n" +
+                "      AND C5 <> '' THEN 'HbA1c < 9'\n" +
+                "      WHEN C3 = 0\n" +
+                "      AND qid = '228'\n" +
+                "      AND C5 <> '' THEN 'Blood Pressure > 140/90 mm Hg'\n" +
+                "      WHEN C3 = 0\n" +
+                "      AND qid = '230'\n" +
+                "      AND C5 <> '' THEN 'No Active Statin Medication'\n" +
+                "      WHEN C3 = 0\n" +
+                "      AND qid = '232'\n" +
+                "      AND C5 <> '' THEN 'Tobacco Screening Not Done'\n" +
+                "      WHEN C3 = 0\n" +
+                "      AND qid = '232'\n" +
+                "      AND C5 <> ''\n" +
+                "      AND C9 = 1 THEN 'Tobacco Follow Up Not Done'\n" +
+                "      WHEN C3 = 0\n" +
+                "      AND qid = '234'\n" +
+                "      AND C5 <> '' THEN 'Mammogram Screening Not Done'\n" +
+                "    END\n" +
+                "  ) AS 'Supporting_Facts',\n" +
+                "  c2 AS 'Patient_id'\n" +
+                "FROM\n" +
+                "  ebo_cde_detail\n" +
+                "WHERE\n" +
+                "  CAST(qid AS CHAR(255)) IN (\n" +
+                "    '201',\n" +
+                "    '203',\n" +
+                "    '205',\n" +
+                "    '208',\n" +
+                "    '213',\n" +
+                "    '218',\n" +
+                "    '220',\n" +
+                "    '223',\n" +
+                "    '225',\n" +
+                "    '228',\n" +
+                "    '230',\n" +
+                "    '232',\n" +
+                "    '235'\n" +
+                "  ) AND c2 = ?";
+
+        String patientId = "9653";
+        Connection connection = null;
+        try {
+            connection = DatabaseConnector.getConnection();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1,patientId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+//                System.out.println("Result: "+resultSet.toString());
+                SupportingFact supportingFact = new SupportingFact();
+                supportingFact.setName(resultSet.getString("Supporting_Facts"));
+                supportingFacts.add(supportingFact);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return supportingFacts;
+
+    }
+
+
+    public List<Measure> generateMeasures() {
+        List<Measure> measures = new ArrayList<>();
+        final String query = "  SELECT \n" +
+                "                DISTINCT (CASE  \n" +
+                "                WHEN CAST(qid AS CHAR(10)) = '201' THEN 'Cervical Cancer Screening' \n" +
+                "                WHEN CAST(qid AS CHAR(10)) = '203' THEN 'HIV Screening' \n" +
+                "                WHEN CAST(qid AS CHAR(10)) = '205' THEN 'Adult BMI' \n" +
+                "                WHEN CAST(qid AS CHAR(10)) = '208' THEN 'Colorectal Cancer Screening' \n" +
+                "                WHEN CAST(qid AS CHAR(10)) = '213' THEN 'Childhood BMI' \n" +
+                "                WHEN CAST(qid AS CHAR(10)) = '218' THEN 'IVD' \n" +
+                "                WHEN CAST(qid AS CHAR(10)) = '220' THEN 'Depression Screening' \n" +
+                "                WHEN CAST(qid AS CHAR(10)) = '223' THEN 'Depression Remission' \n" +
+                "                WHEN CAST(qid AS CHAR(10)) = '225' THEN 'Diabetes' \n" +
+                "                WHEN CAST(qid AS CHAR(10)) = '228' THEN 'Hypertension' \n" +
+                "                WHEN CAST(qid AS CHAR(10)) = '230' THEN 'Statin Therapy' \n" +
+                "                WHEN CAST(qid AS CHAR(10)) = '232' THEN 'Tobacco Screening' \n" +
+                "                WHEN CAST(qid AS CHAR(10)) = '234' THEN 'Breast Cancer Screening' \n" +
+                "                END \n" +
+                "                ) AS 'Measure_Name', \n" +
+                "                (CASE  \n" +
+                "                WHEN C3 = 0 THEN 'Non-Compliant' \n" +
+                "                WHEN C3 = 1 THEN 'Compliant' \n" +
+                "                END) AS 'Outcome' \n" +
+                "                ,c2 AS 'Patient_id' \n" +
+                "                FROM eBO_CDE_DETAIL WHERE CAST(qid AS CHAR(255)) IN ('201','203', '205','208', '213', '218', '220', '223', '225', '228', '230', '232', '234') AND c2 = ?";
+
+       String patientId = "9653";
+        try (Connection con = DatabaseConnector.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(query)) {
+            pstmt.setString(1,patientId);
+
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Measure measure = new Measure();
+                    measure.setName(rs.getString("Measure_Name"));
+                    measure.setOutcome(rs.getString("Outcome"));
+                    measures.add(measure);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return measures;
+    }
+
+    public List<Program> generatePrograms() {
+
+        List<Program> programs = new ArrayList<>();
+        final String query = "select distinct cdename as 'Program_Name' from eBO_CDE_DETAIL where cdename = 'UDS'";
+
+        try (Connection con = DatabaseConnector.getConnection()) {
+            PreparedStatement pstmt = con.prepareStatement(query);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Program program = new Program();
+                    program.setName(rs.getString("Program_Name"));
+                    programs.add(program);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return programs;
+    }
+
+
+    public void setUserInfo(String patientId, MainBody mainBody) {
+        final String query = "SELECT c2 AS Patient_id FROM ebo_cde_detail WHERE CAST(qid AS CHAR(255)) IN ('201','203', '205','208', '213', '218', '220', '223', '225', '228', '230', '232', '234') AND  c2 = ?";
+
+        patientId = "9653";
+        try (Connection con = DatabaseConnector.getConnection();
+             PreparedStatement pstmt = con.prepareStatement(query)) {
+            pstmt.setString(1, patientId);
+
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()){
+
+                mainBody.setId(rs.getString("Patient_id"));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void setMeasurePeriod(MainBody mainBody) {
+
+        final  String query = "SELECT DISTINCT CAST(CONCAT('01/', '01/', YEAR(logdatetime)) AS CHAR(12)) AS 'Measure_Start', CAST(CONCAT('12/', '31/', YEAR(logdatetime)) AS CHAR(12)) AS 'Measure_End' \n" +
+                "FROM ebo_cde_detail\n" +
+                "WHERE CAST(qid AS CHAR(255)) IN ('201', '203', '205','208', '213', '218', '220', '223', '225', '228', '230', '232', '234')";
+
+        try (Connection con = DatabaseConnector.getConnection()) {
+            PreparedStatement psmt = con.prepareStatement(query);
+
+            ResultSet rs = psmt.executeQuery();
+            if (rs.next()){
+                mainBody.setMeasurementPeriodStartDate(rs.getString("Measure_Start"));
+                mainBody.setMeasurementPeriodEndDate(rs.getString("Measure_End"));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
