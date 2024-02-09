@@ -65,3 +65,163 @@ Program
 select distinct cdename as 'Program_Name' from eBO_CDE_DETAIL where cdename = 'UDS'
 
 
+
+Generate OrderSet
+
+SELECT
+  ecd.C2 AS 'PID',
+  ecd.C3 'Compliance',
+  (
+    CASE
+      WHEN ecd.C3 = 0 THEN MAX(orderset.EncounterId)
+      ELSE NULL
+    END
+  ) AS 'OrdersetID'
+FROM
+  ebo_cde_detail ecd
+  INNER JOIN 
+(
+SELECT EncounterId, DESCRIPTION,
+		CASE
+			WHEN Description = 'UDS_Cervical_Cancer_Screening' THEN 201
+			WHEN Description = 'UDS_HIV_Screening' THEN 203
+			WHEN Description = 'UDS_Adult_BMI' THEN 205
+			WHEN Description = 'UDS_Colorectal_Cancer_Screening' THEN 208
+			WHEN Description = 'UDS_Childhood_BMI' THEN 213
+			WHEN Description = 'UDS_IVD' THEN 218
+			WHEN Description = 'UDS_Depression_Screening' THEN 220
+			WHEN Description = 'UDS_Depression_Remission' THEN 223
+			WHEN Description = 'UDS_Diabetes' THEN 225
+			WHEN Description = 'UDS_Hypertension' THEN 228
+			WHEN Description = 'UDS_Statin_Therapy' THEN 230
+			WHEN Description = 'UDS_Tobacco_Cessation' THEN 232
+			WHEN Description = 'UDS_Breast_Cancer_Screening' THEN 234
+						
+		END AS 'QID'
+		FROM ordersets	
+		WHERE encounterid=(SELECT MAX(encounterid) FROM ordersets)		
+		
+) orderset ON orderset.QID = ecd.QID AND ecd.cdeid = 2
+
+
+
+
+
+{
+    "id": null,
+    "programs": [
+        {
+            "id": null,
+            "name": "UDS",
+            "scorable": null,
+            "measures": [
+                {
+                    "fqn": null,
+                    "name": "Cervical Cancer Screening",
+                    "outcome": "Non-Compliant",
+                    "frequency": null,
+                    "assmntIds": null,
+                    "ordersetEncId": null,
+                    "selectedTreatmentAsmtId": null,
+                    "adviceText": null,
+                    "inverse": null,
+                    "itemName": null,
+                    "lastSatisfiedDate": null,
+                    "dueDate": null,
+                    "valueUnit": null,
+                    "measureDue": null,
+                    "supportingFacts": [
+                        {
+                            "name": "Cervical Cancer Screening Not Done",
+                            "date": null,
+                            "details": [],
+                            "formattedSource": null,
+                            "formattedCode": null
+                        }
+                    ],
+                    "osselectionType": null
+                },
+                {
+                    "fqn": null,
+                    "name": "HIV Screening",
+                    "outcome": "Non-Compliant",
+                    "frequency": null,
+                    "assmntIds": null,
+                    "ordersetEncId": null,
+                    "selectedTreatmentAsmtId": null,
+                    "adviceText": null,
+                    "inverse": null,
+                    "itemName": null,
+                    "lastSatisfiedDate": null,
+                    "dueDate": null,
+                    "valueUnit": null,
+                    "measureDue": null,
+                    "supportingFacts": [
+                        {
+                            "name": "HIV Cancer Screening Not Done",
+                            "date": null,
+                            "details": [],
+                            "formattedSource": null,
+                            "formattedCode": null
+                        }
+                    ],
+                    "osselectionType": null
+                },
+                {
+                    "fqn": null,
+                    "name": "Adult BMI",
+                    "outcome": "Non-Compliant",
+                    "frequency": null,
+                    "assmntIds": null,
+                    "ordersetEncId": null,
+                    "selectedTreatmentAsmtId": null,
+                    "adviceText": null,
+                    "inverse": null,
+                    "itemName": null,
+                    "lastSatisfiedDate": null,
+                    "dueDate": null,
+                    "valueUnit": null,
+                    "measureDue": null,
+                    "supportingFacts": [
+                        {
+                            "name": "Vitals Not Taken",
+                            "date": null,
+                            "details": [],
+                            "formattedSource": null,
+                            "formattedCode": null
+                        }
+                    ],
+                    "osselectionType": null
+                },
+                {
+                    "fqn": null,
+                    "name": "IVD",
+                    "outcome": "Non-Compliant",
+                    "frequency": null,
+                    "assmntIds": null,
+                    "ordersetEncId": null,
+                    "selectedTreatmentAsmtId": null,
+                    "adviceText": null,
+                    "inverse": null,
+                    "itemName": null,
+                    "lastSatisfiedDate": null,
+                    "dueDate": null,
+                    "valueUnit": null,
+                    "measureDue": null,
+                    "supportingFacts": [
+                        {
+                            "name": "IVD Medication",
+                            "date": null,
+                            "details": [],
+                            "formattedSource": null,
+                            "formattedCode": null
+                        }
+                    ],
+                    "osselectionType": null
+                }
+            ],
+            "totalMeasureCount": null,
+            "metMeasureCount": null
+        }
+
+
