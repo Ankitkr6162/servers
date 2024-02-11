@@ -65,48 +65,6 @@ Program
 select distinct cdename as 'Program_Name' from eBO_CDE_DETAIL where cdename = 'UDS'
 
 
-
-Generate OrderSet
-
-SELECT
-  ecd.C2 AS 'PID',
-  ecd.C3 'Compliance',
-  (
-    CASE
-      WHEN ecd.C3 = 0 THEN MAX(orderset.EncounterId)
-      ELSE NULL
-    END
-  ) AS 'OrdersetID'
-FROM
-  ebo_cde_detail ecd
-  INNER JOIN 
-(
-SELECT EncounterId, DESCRIPTION,
-		CASE
-			WHEN Description = 'UDS_Cervical_Cancer_Screening' THEN 201
-			WHEN Description = 'UDS_HIV_Screening' THEN 203
-			WHEN Description = 'UDS_Adult_BMI' THEN 205
-			WHEN Description = 'UDS_Colorectal_Cancer_Screening' THEN 208
-			WHEN Description = 'UDS_Childhood_BMI' THEN 213
-			WHEN Description = 'UDS_IVD' THEN 218
-			WHEN Description = 'UDS_Depression_Screening' THEN 220
-			WHEN Description = 'UDS_Depression_Remission' THEN 223
-			WHEN Description = 'UDS_Diabetes' THEN 225
-			WHEN Description = 'UDS_Hypertension' THEN 228
-			WHEN Description = 'UDS_Statin_Therapy' THEN 230
-			WHEN Description = 'UDS_Tobacco_Cessation' THEN 232
-			WHEN Description = 'UDS_Breast_Cancer_Screening' THEN 234
-						
-		END AS 'QID'
-		FROM ordersets	
-		WHERE encounterid=(SELECT MAX(encounterid) FROM ordersets)		
-		
-) orderset ON orderset.QID = ecd.QID AND ecd.cdeid = 2
-
-
-
-
-
 {
     "id": null,
     "programs": [
@@ -223,5 +181,69 @@ SELECT EncounterId, DESCRIPTION,
             "totalMeasureCount": null,
             "metMeasureCount": null
         }
+
+
+
+
+Measure with orderset query 
+
+
+
+SELECT
+	ecd.qid,
+	(
+	CASE 
+	WHEN CAST(ecd.qid AS CHAR(10)) = '201' THEN 'Cervical Cancer Screening'
+	WHEN CAST(ecd.qid AS CHAR(10)) = '203' THEN 'HIV Screening'
+	WHEN CAST(ecd.qid AS CHAR(10)) = '205' THEN 'Adult BMI'
+	WHEN CAST(ecd.qid AS CHAR(10)) = '208' THEN 'Colorectal Cancer Screening'
+	WHEN CAST(ecd.qid AS CHAR(10)) = '213' THEN 'Childhood BMI'
+	WHEN CAST(ecd.qid AS CHAR(10)) = '218' THEN 'IVD'
+	WHEN CAST(ecd.qid AS CHAR(10)) = '220' THEN 'Depression Screening'
+	WHEN CAST(ecd.qid AS CHAR(10)) = '223' THEN 'Depression Remission'
+	WHEN CAST(ecd.qid AS CHAR(10)) = '225' THEN 'Diabetes'
+	WHEN CAST(ecd.qid AS CHAR(10)) = '228' THEN 'Hypertension'
+	WHEN CAST(ecd.qid AS CHAR(10)) = '230' THEN 'Statin Therapy'
+	WHEN CAST(ecd.qid AS CHAR(10)) = '232' THEN 'Tobacco Screening'
+	WHEN CAST(ecd.qid AS CHAR(10)) = '235' THEN 'Breast Cancer Screening'
+	END
+	) AS 'Measure_Name',
+  ecd.c2 AS 'Patient_id',
+  (CASE 
+	WHEN C3 = 0 THEN 'Non-Compliant'
+	WHEN C3 = 1 THEN 'Compliant'
+END) AS 'Compliance Status',
+  ORDERSET.ENCOUNTERID AS OrdersetID
+FROM
+  ebo_cde_detail ecd
+INNER JOIN 
+(
+	SELECT ORDERSETS.ENCOUNTERID, ORDERSETS.DESCRIPTION,
+		CASE
+			WHEN ORDERSETS.Description = 'UDS_Cervical_Cancer_Screening' THEN 201
+			WHEN ORDERSETS.Description = 'UDS_Breast_Cancer_Screening' THEN 235
+			WHEN ORDERSETS.Description = 'UDS_Childhood_BMI' THEN 213
+			WHEN ORDERSETS.Description = 'UDS_Adult_BMI' THEN 205
+			WHEN ORDERSETS.Description = 'UDS_Tobacco_Cessation' THEN 232
+			WHEN ORDERSETS.Description = 'UDS_Statin_Therapy' THEN 230
+			WHEN ORDERSETS.Description = 'UDS_IVD' THEN 218
+			WHEN ORDERSETS.Description = 'UDS_Colorectal_Cancer_Screening' THEN 208
+			WHEN ORDERSETS.Description = 'UDS_HIV_Screening' THEN 203
+			WHEN ORDERSETS.Description = 'UDS_Depression_Screening' THEN 220
+			WHEN ORDERSETS.Description = 'UDS_Depression_Remission' THEN 223
+			WHEN ORDERSETS.Description = 'UDS_Hypertension' THEN 228
+			WHEN ORDERSETS.Description = 'UDS_Diabetes' THEN 225
+		END AS 'QID'
+		FROM ORDERSETS
+		INNER JOIN (
+			SELECT MAX(ENCOUNTERID) ENCOUNTERID, DESCRIPTION
+			FROM ORDERSETS
+			WHERE ORDERSETS.DELETEFLAG = 0
+			GROUP BY DESCRIPTION
+			) MAXOS ON MAXOS.ENCOUNTERID = ORDERSETS.ENCOUNTERID
+			
+) ORDERSET ON ORDERSET.QID = ecd.QID AND ecd.cdeid=2 AND ecd.c3=0
+WHERE
+  CAST(ecd.qid AS CHAR(255)) IN ( '201','203','205','208','213','218','220','223','225','228','230','232','235') AND ecd.cdeid = 2 
 
 
