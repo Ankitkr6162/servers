@@ -262,6 +262,48 @@ public class EboCdeController {
 
 
 
+public JsonObject getClinicalQualityAlerts(int pid) {
+        JsonObject cqaJson= new JsonObject();
+        JsonArray cqaEmptyJsonARR = new JsonArray();
+        try {
+            String cqAlerts = new HedisRightChartPanel().generate(pid);
+            JsonElement el = JsonParser.parseString(cqAlerts);
+            JsonObject cqaHedisRowsJson = el.getAsJsonObject();
+
+            if(cqaHedisRowsJson.has("programs") && !cqaHedisRowsJson.get("measurementPeriodStartDate").isJsonNull() && !cqaHedisRowsJson.get("measurementPeriodEndDate").isJsonNull()) {
+                String measurementPeriod = cqaHedisRowsJson.get("measurementPeriodStartDate").getAsString() + "-" + cqaHedisRowsJson.get("measurementPeriodEndDate").getAsString();
+                JsonArray programDetailsArr = cqaHedisRowsJson.getAsJsonArray("programs");
+                JsonArray cqaJsonARR = new JsonArray();
+                for(int i=0;i<programDetailsArr.size();i++) {
+                    String programName = programDetailsArr.get(i).getAsJsonObject().get("name").getAsString();
+                    JsonArray measureDetailsArr = programDetailsArr.get(i).getAsJsonObject().get("measures").getAsJsonArray();
+                    for (int j=0;j<measureDetailsArr.size();j++){
+                        JsonObject cqaRowsJson = new JsonObject();
+                        cqaRowsJson.addProperty("programName", programName);
+                        cqaRowsJson.addProperty("fqn", measureDetailsArr.get(j).getAsJsonObject().get("fqn").getAsString());
+                        cqaRowsJson.addProperty("name", measureDetailsArr.get(j).getAsJsonObject().get("name").getAsString());
+                        cqaRowsJson.addProperty("measurePeriod", measurementPeriod);
+                        cqaRowsJson.addProperty("outcome", measureDetailsArr.get(j).getAsJsonObject().get("outcome").getAsString());
+                        setOrderSetOrOrder(measureDetailsArr, j, cqaRowsJson);
+                        JsonArray suppFactsArr = measureDetailsArr.get(j).getAsJsonObject().get("supporting_facts").getAsJsonArray();
+                        cqaRowsJson.add("supporting_facts", suppFactsArr);
+                        cqaJsonARR.add(cqaRowsJson);
+                    }
+                }
+                cqaJson.add("hedisGaps",cqaJsonARR);
+            }
+            else {
+                cqaJson.add("hedisGaps", cqaEmptyJsonARR);
+            }
+        }catch (Exception ex) {
+            LOGGER.error(ex.getMessage(), ex);
+        }
+        return cqaJson;
+    }
+
+
+
+
 
 
 
