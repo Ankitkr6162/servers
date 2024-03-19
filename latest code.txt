@@ -478,6 +478,46 @@ public JsonObject getClinicalQualityAlerts(int pid) {
 
 
 
+public class UdsEboCdeDetailService {
+    private final UdsEboCdeDetailDao udsEboCdeDetailDao;
+
+    public UdsEboCdeDetailService(UdsEboCdeDetailDao udsEboCdeDetailDao) {
+        this.udsEboCdeDetailDao = udsEboCdeDetailDao;
+    }
+
+    public UdsMainBody mainBody(Integer patientId, UdsMainBody mainBody) {
+
+        int active = udsEboCdeDetailDao.getUdsActiveStatus();
+        String itemKeyValue = udsEboCdeDetailDao.getItemKeyValue();
+
+        if (active == 1 && "yes".equalsIgnoreCase(itemKeyValue)) {
+            List<UdsMeasure> udsMeasures = udsEboCdeDetailDao.generateUDSMeasure(patientId);
+            Map<String, List<UdsSupportingFact>> udsMeasureSupportingFacts = udsEboCdeDetailDao.generateUDSMeasureSupportingFacts(patientId);
+            if (udsMeasures != null && !udsMeasures.isEmpty()) {
+                for (UdsMeasure measure : udsMeasures) {
+                    List<UdsSupportingFact> measureSuportingFacts = udsMeasureSupportingFacts.get(measure.getName());
+                    measure.setUdsSupportingFacts(measureSuportingFacts);
+                }
+                List<UdsProgram> udsPrograms = udsEboCdeDetailDao.generateUDSProgram();
+                if (udsPrograms != null && !udsPrograms.isEmpty()) {
+                    for (UdsProgram program : udsPrograms) {
+                        program.setUdsMeasures(udsMeasures);
+                    }
+                    mainBody.setPrograms(udsPrograms);
+                    udsEboCdeDetailDao.setMeasurePeriod(mainBody);
+                }
+            }
+            return mainBody;
+        } else if (active == 0 && "no".equalsIgnoreCase(itemKeyValue)) {
+            return new UdsMainBody();
+        }
+        return null;
+    }
+}
+
+
+
+
 
 
 
