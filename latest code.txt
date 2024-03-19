@@ -301,6 +301,180 @@ public JsonObject getClinicalQualityAlerts(int pid) {
         return cqaJson;
     }
 
+{
+    "programs": [
+        {
+            "programName": "UDS",
+            "udsMeasures": [
+                {
+                    "name": "Cervical Cancer Screening",
+                    "outcome": "Non-Compliant",
+                    "ordersetEncId": "25545",
+                    "osSelectionType": "orderset",
+                    "udsSupportingFacts": [
+                        {
+                            "name": "Cervical Cancer Screening Not Done"
+                        }
+                    ]
+                },
+                {
+                    "name": "HIV Screening",
+                    "outcome": "Non-Compliant",
+                    "ordersetEncId": null,
+                    "osSelectionType": "orderset",
+                    "udsSupportingFacts": [
+                        {
+                            "name": "HIV Cancer Screening Not Done"
+                        }
+                    ]
+                },
+                {
+                    "name": "Adult BMI",
+                    "outcome": "Non-Compliant",
+                    "ordersetEncId": null,
+                    "osSelectionType": "orderset",
+                    "udsSupportingFacts": [
+                        {
+                            "name": "Vitals Not Taken"
+                        }
+                    ]
+                },
+                {
+                    "name": "Colorectal Cancer Screening",
+                    "outcome": "Compliant",
+                    "ordersetEncId": null,
+                    "osSelectionType": "orderset",
+                    "udsSupportingFacts": [
+                        {
+                            "name": ""
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "measurementPeriodStartDate": "01/01/0",
+    "measurementPeriodEndDate": "12/31/0"
+}
+
+
+{
+  "hedisGaps": [
+    {
+      "programName": "Access/Availability of Care",
+      "fqn": "2020_AAP-02",
+      "name": "HEDIS 2020 Adults Access to Preventive Services(AAP) Age: 45-64 Commercial : Adjusted, Certified, Unaudited HEDIS Rate",
+      "measurePeriod": "09/01/2021-09/01/2022",
+      "outcome": "EXCLUDED",
+      "osSelectionType": "orderset",
+      "itemName": "Abrasions (minor)-adult",
+      "supporting_facts": [
+      ]
+    },
+    {
+      "programName": "Access/Availability of Care",
+      "fqn": "MY2020_AAP-02",
+      "name": "Adults Access to Preventive Services(AAP) Age: 45-64 Commercial : Adjusted, Certified, Unaudited HEDIS Rate",
+      "measurePeriod": "09/01/2021-09/01/2022",
+      "outcome": "ACHIEVED",
+      "supporting_facts": [
+      ]
+    },
+    {
+      "programName": "Access/Availability of Care",
+      "fqn": "MY2021_AAP-02",
+      "name": "Adults Access to Preventive Services(AAP) Age: 45-64 Commercial : Adjusted, Certified, Unaudited HEDIS Rate",
+      "measurePeriod": "09/01/2021-09/01/2022",
+      "outcome": "NOT_ACHIEVED",
+      "supporting_facts": [
+      ]
+    },
+    {
+      "programName": "Cardiac ",
+      "fqn": "NQF0066",
+      "name": "CAD: ACE/ARB Therapy for Patients with Diabetes or LVEF less than 40%",
+      "measurePeriod": "09/01/2021-09/01/2022",
+      "outcome": "NOT_ACHIEVED",
+      "supporting_facts": [
+      ]
+    },
+    {
+      "programName": "Prevention and Screening",
+      "fqn": "2020_ABA",
+      "name": "HEDIS 2020 Adult BMI Assessment - Adjusted, Certified, Unaudited HEDIS Rate",
+      "measurePeriod": "09/01/2021-09/01/2022",
+      "outcome": "NOT_ACHIEVED",
+      "osSelectionType": "lab",
+      "itemName": "TSH",
+      "supporting_facts": [
+      ]
+    },
+    {
+      "programName": "Prevention and Screening",
+      "fqn": "2020_COL",
+      "name": "HEDIS 2020 Colorectal Cancer Screening : 2020 Adjusted, Certified, Unaudited HEDIS Rate",
+      "measurePeriod": "09/01/2021-09/01/2022",
+      "outcome": "NOT_ACHIEVED",
+      "supporting_facts": [
+      ]
+    },
+    {
+      "programName": "Prevention and Screening",
+      "fqn": "COL",
+      "name": "Colorectal Cancer Screening",
+      "measurePeriod": "09/01/2021-09/01/2022",
+      "outcome": "NOT_ACHIEVED",
+      "supporting_facts": [
+      ]
+    },
+    {
+      "programName": "Prevention and Screening",
+      "fqn": "CQM_COL",
+      "name": "HEDIS MY2022 Colorectal Cancer Screening (COL) - Adjusted, Certified, Unaudited HEDIS Rate",
+      "measurePeriod": "09/01/2021-09/01/2022",
+      "outcome": "NOT_ACHIEVED",
+      "supporting_facts": [
+      ]
+    },
+    {
+      "programName": "Prevention and Screening",
+      "fqn": "MY2020_COL",
+      "name": "MY2020_COL: HEDIS MY2020 Colorectal Cancer Screening (COL) - Adjusted, Certified, Unaudited HEDIS Rate",
+      "measurePeriod": "09/01/2021-09/01/2022",
+      "outcome": "NOT_ACHIEVED",
+      "supporting_facts": [
+      ]
+    },
+    {
+      "programName": "Prevention and Screening",
+      "fqn": "MY2021_COL",
+      "name": "MY2021_COL: HEDIS MY2021 Colorectal Cancer Screening (COL) - Adjusted, Certified, Unaudited HEDIS Rate",
+      "measurePeriod": "09/01/2021-09/01/2022",
+      "outcome": "EXCLUDED",
+      "supporting_facts": [
+      ]
+    },
+    {
+      "programName": "Prevention and Screening",
+      "fqn": "NQF1690",
+      "name": "Adult BMI Assessment",
+      "measurePeriod": "09/01/2021-09/01/2022",
+      "outcome": "EXCLUDED",
+      "supporting_facts": [
+      ]
+    },
+    {
+      "programName": "Respiratory ",
+      "fqn": "COVID19-2",
+      "name": "COVID-19 Diagnosis",
+      "measurePeriod": "09/01/2021-09/01/2022",
+      "outcome": "NOT_ACHIEVED",
+      "supporting_facts": [
+      ]
+    }
+  ]
+}
+
 
 
 
