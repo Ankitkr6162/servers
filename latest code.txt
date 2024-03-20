@@ -507,11 +507,11 @@ public class UdsEboCdeDetailService {
                     udsEboCdeDetailDao.setMeasurePeriod(mainBody);
                 }
             }
-            return mainBody;
+            
         } else if (active == 0 && "no".equalsIgnoreCase(itemKeyValue)) {
             return new UdsMainBody();
         }
-        return null;
+        return mainBody;
     }
 }
 
